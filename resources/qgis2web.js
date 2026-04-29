@@ -9,7 +9,7 @@ var map = new ol.Map({
 });
 
 //initial view - epsg:3857 coordinates if not "Match project CRS"
-map.getView().fit([12530753.815220, -885447.970367, 12535100.279108, -883155.961097], map.getSize());
+map.getView().fit([12531035.969219, -885565.400844, 12535382.433107, -883273.385761], map.getSize());
 
 //full zooms only
 map.getView().setProperties({constrainResolution: true});
@@ -486,65 +486,6 @@ map.addControl(Title)
 
 //geolocate
 
-	let isTracking = false;
-
-	const geolocateButton = document.createElement('button');
-	geolocateButton.className = 'geolocate-button fa fa-map-marker';
-	geolocateButton.title = 'Geolocalizza';
-
-	const geolocateControl = document.createElement('div');
-	geolocateControl.className = 'ol-unselectable ol-control geolocate';
-	geolocateControl.appendChild(geolocateButton);
-	map.getTargetElement().appendChild(geolocateControl);
-
-	const accuracyFeature = new ol.Feature();
-	const positionFeature = new ol.Feature({
-	  style: new ol.style.Style({
-		image: new ol.style.Circle({
-		  radius: 6,
-		  fill: new ol.style.Fill({ color: '#3399CC' }),
-		  stroke: new ol.style.Stroke({ color: '#fff', width: 2 }),
-		}),
-	  }),
-	});
-
-  const geolocateOverlay = new ol.layer.Vector({
-	  source: new ol.source.Vector({
-		features: [accuracyFeature, positionFeature],
-	  }),
-	});
-	
-	const geolocation = new ol.Geolocation({
-	  projection: map.getView().getProjection(),
-	});
-
-	geolocation.on('change:accuracyGeometry', function () {
-	  accuracyFeature.setGeometry(geolocation.getAccuracyGeometry());
-	});
-
-	geolocation.on('change:position', function () {
-	  const coords = geolocation.getPosition();
-	  positionFeature.setGeometry(coords ? new ol.geom.Point(coords) : null);
-	});
-
-	geolocation.setTracking(true);
-
-	function handleGeolocate() {
-	  if (isTracking) {
-		map.removeLayer(geolocateOverlay);
-		isTracking = false;
-	  } else if (geolocation.getTracking()) {
-		map.addLayer(geolocateOverlay);
-		const pos = geolocation.getPosition();
-		if (pos) {
-		  map.getView().setCenter(pos);
-		}
-		isTracking = true;
-	  }
-	}
-
-	geolocateButton.addEventListener('click', handleGeolocate);
-	geolocateButton.addEventListener('touchstart', handleGeolocate);
 
 
 //measurement
@@ -935,11 +876,22 @@ document.getElementsByClassName('search-layer-input-search')[0].placeholder = 'S
 //layerswitcher
 
 var layerSwitcher = new ol.control.LayerSwitcher({
-    tipLabel: "Layers",
-    target: 'top-right-container'
-});
+    activationMode: 'click',
+	startActive: true,
+	tipLabel: "Layers",
+    target: 'top-right-container',
+	collapseLabel: '»',
+	collapseTipLabel: 'Close'
+    });
 map.addControl(layerSwitcher);
-    
+if (hasTouchScreen || isSmallScreen) {
+	document.addEventListener('DOMContentLoaded', function() {
+		setTimeout(function() {
+			layerSwitcher.hidePanel();
+		}, 500);
+	});	
+}
+
 
 
 
